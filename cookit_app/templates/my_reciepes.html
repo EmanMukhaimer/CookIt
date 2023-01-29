@@ -151,6 +151,13 @@
         </section>
         <!-- Inne Page Banner Area End Here -->
         <!-- Single Author Area Start Here -->
+        {% for recipe in recipes %}
+        <p>Recipe Name: {{recipe.name}}</p>
+        <img src="{{recipe.recipe_img.url}}">
+        {% for ingredient in recipe.ingredients.all %}
+        <p>Ingredient Name: {{ingredient.name}}</p>{{ingredient.name}}
+        {% endfor %}
+        {% endfor %}
         <section class="single-author-page-wrap padding-top-80 padding-bottom-50">
             <div class="container">
                 <div class="row gutters-60">

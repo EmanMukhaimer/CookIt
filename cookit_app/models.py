@@ -59,26 +59,27 @@ class Category(models.Model):
     
 class Recipe(models.Model):
     name = models.CharField(max_length=255)
-    preparation_time = models.CharField(max_length=255)
-    cooking_time = models.CharField(max_length=255)
-    serving_people = models.CharField(max_length=255)
-    reciepe_img = models.FileField(upload_to = "files/reciepe/")
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    categories = models.ManyToManyField(Category, related_name="reciepes")
+    category = models.CharField(max_length=255)
+    description=models.CharField(max_length=255)
+    recipe_img = models.ImageField(upload_to = "recipe/")
+    preparation_time = models.TimeField(max_length=255)
+    cooking_time = models.TimeField(max_length=255)
+    serving_people = models.IntegerField(max_length=255)
+    user = models.ForeignKey(User,related_name="recipes", on_delete=models.CASCADE)
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class Instruction(models.Model):
+    specification=models.CharField(max_length=255)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='instructions')
-    step_text = models.TextField()
-    step_number = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class Ingredient(models.Model):
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='ingredients')
     name = models.CharField(max_length=255)
     quantity = models.CharField(max_length=255)
+    recipe = models.ManyToManyField(Recipe, related_name='ingredients')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -152,29 +152,32 @@
             <div class="container">
                 <div class="row gutters-60">
                     <div class="col-lg-8">
-                        <form class="submit-recipe-form" ethod="post" action="/add_reciepe">
+                        <form enctype="multipart/form-data" class="submit-recipe-form" method="post" action="/add_recipe">
                             {% csrf_token %}
                             <div class="form-group">
                                 <label>Recipe Name</label>
-                                <input type="text" placeholder="Recipe Name" class="form-control" name="name"
-                                    data-error="Subject field is required">
+                                <input type="text" placeholder="Recipe Name" class="form-control" name="name">
                                 <div class="help-block with-errors"></div>
                             </div>
                             <div class="form-group">
                                 <label>Choose Category</label>
-                                <select name="" id=""></select>
+                                <select name="category" id="">
+                                {% for category in categories %}
+                                <option value="{{category}}">{{category}}</option>
+                                {% endfor %}
+                            </select>
                             </div>
                             <div class="form-group">
                                 <label>Description</label>
-                                <textarea placeholder="Type your text" class="textarea form-control" name="message" id="form-message"
-                                    rows="7" cols="20" data-error="Message field is required" required></textarea>
+                                <textarea placeholder="Type your text" class="textarea form-control" name="description" id="form-message"
+                                    rows="7" cols="20"  required></textarea>
                                 <div class="help-block with-errors"></div>
                             </div>
                             <div class="additional-input-wrap">
                                 <label>Upload your photo</label>
                                 <div class="form-group">
                                     <ul class="upload-img">
-                                        <input type="file" name="image" id="image">
+                                        <input type="file" name="image" >
                                     </ul>
                                 </div>
                             </div>
@@ -185,28 +188,19 @@
                                     <div class="col-lg-6">
                                         <div class="form-group additional-input-box icon-left">
                                             <i class="far fa-clock"></i>
-                                            <input type="text" placeholder="Preparation Time: 00.00.00" class="form-control"
-                                                name="name">
+                                            <input type="text" placeholder="Preparation Time: 00.00.00" class="form-control" name="preparation_time">
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="form-group additional-input-box icon-left">
                                             <i class="fas fa-utensils"></i>
-                                            <input type="text" placeholder="Cooking Time: 00.00.00" class="form-control"
-                                                name="name">
+                                            <input type="text" placeholder="Cooking Time: 00.00.00" class="form-control" name="cooking_time">
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="form-group additional-input-box icon-left">
                                             <i class="fas fa-users"></i>
-                                            <input type="text" placeholder="Serving People: 00" class="form-control"
-                                                name="name">
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-group additional-input-box icon-left">
-                                            <i class="fas fa-eye"></i>
-                                            <input type="text" placeholder="People Views: 00" class="form-control" name="name">
+                                            <input type="text" placeholder="Serving People: 00" class="form-control" name="serving_people">
                                         </div>
                                     </div>
                                 </div>
@@ -224,21 +218,36 @@
                                         <div class="col-6">
                                             <div class="form-group additional-input-box icon-right">
                                                 
-                                                <input type="text" placeholder="Amount" class="form-control" name="ingredient_amount_0">
+                                                <input type="text" placeholder="Amount" class="form-control" name="ingredient_quantity_0">
                                                 <i class="fas fa-times"></i>
                                             </div>
                                         </div>
                                     </div>
                                     <div id="newinput" class="row no-gutters"></div>
                                 </div>
-                                <input type="hidden" id="number_of_ingredient" name="number_of_ingredient" value="">
-                                <button type="submit" class="btn-upload" id="rowAdder"><i class="flaticon-add-plus-button"></i>ADD NEW
-                                    INGREDIENT</button>
+                                <input type="hidden" id="number_of_ingredients" name="number_of_ingredients" value="1">
+                                <button  type="button" class="btn-upload" id="rowAdder"><i class="flaticon-add-plus-button"></i>ADD NEW INGREDIENT</button>
+                            </div>
+                            <div class="additional-input-wrap">
+                                <label>Instructions:</label>
+                                <div id="new_instruction">
+                                    <div id="row no-gutters" class="row no-gutters">
+                                        <div class="col-6">
+                                            <div class="form-group additional-input-box icon-left">
+                                                <i class="fas fa-arrows-alt"></i>
+                                                <input type="text" placeholder="Instruction" class="form-control" name="instruction_specification_0">     
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="newinstruction" class="row no-gutters"></div>
+                                </div>
+                                <input type="hidden" id="number_of_instructions" name="number_of_instructions" value="1">
+                                <button type="button" class="btn-upload" id="instructionAdder"><i class="flaticon-add-plus-button"></i>ADD NEW
+                                    Instruction</button>
                             </div>
                             
-                            
                         
-                            <button type="submit" class="btn-submit">SUBMIT RECIPE</button>
+                            <input type="submit" class="btn-submit" value="SUBMIT RECIPE">
                         </form>
                     </div>
                     
@@ -275,27 +284,40 @@
         <script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
         </script>
         <script type="text/javascript">
-            var number_of_ingredient=0;
+            var number_of_ingredients=0;
             $("#rowAdder").click(function () {
-                number_of_ingredient=number_of_ingredient+1;
+            number_of_ingredients=number_of_ingredients+1;
             newRowAdd =
             '<div class="col-6">'+
             '<div class="form-group additional-input-box icon-left">'+
             '<i class="fas fa-arrows-alt"></i>'+
-            '<input type="text" placeholder="Ingredient Name" class="form-control" name="ingredient_name_'+number_of_ingredient+'">'+
+            '<input type="text" placeholder="Ingredient Name" class="form-control" name="ingredient_name_'+number_of_ingredients+'">'+
             '</div>'+
             ' </div>'+
             '<div class="col-6">'+
             '<div class="form-group additional-input-box icon-right">'+
-            '<input type="text" placeholder="Amount" class="form-control" name="ingredient_amount">'+
+            '<input type="text" placeholder="Amount" class="form-control" name="ingredient_quantity_'+number_of_ingredients+'">'+
             '<i class="fas fa-times"></i>'+
             '</div>'+
             '</div>';
             $('#newinput').append(newRowAdd);
-            input=document.getElementById("number_of_ingredient");
-            input.value= number_of_ingredient+1;
+            input=document.getElementById("number_of_ingredients");
+            input.value= number_of_ingredients+1;
+        });
+        var number_of_instructions=0;
+        $("#instructionAdder").click(function () {
+            number_of_instructions=number_of_instructions+1;
+            newRowAdd =
+            '<div class="col-6">'+
+            '<div class="form-group additional-input-box icon-left">'+
+            '<i class="fas fa-arrows-alt"></i>'+
+            '<input type="text" placeholder="Instruction" class="form-control" name="instruction_specification_'+number_of_instructions+'">'+
+            '</div>'+
+            ' </div>';
+            $('#newinstruction').append(newRowAdd);
+            input=document.getElementById("number_of_instructions");
+            input.value= number_of_instructions+1;
         })
-        
         </script>
 </body>
 

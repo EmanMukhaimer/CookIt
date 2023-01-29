@@ -84,7 +84,13 @@ def logout(request):
     return redirect('/')
 
 def my_reciepes(request):
-    return render(request, "my_reciepes.html")
+    if 'id' in request.session:
+        context = {
+        "recipes" :Recipe.objects.filter(user=User.objects.get(id=request.session['id'])),
+        }
+        return render(request, "my_reciepes.html", context)
+    return redirect("/")
+    
 
 def all_reciepes(request):
     return render(request, "all_reciepes.html")
@@ -93,7 +99,12 @@ def category_reciepes(request):
     return render(request, "category_reciepes.html")
 
 def add_reciepe_page(request):
-    return render(request, "add_reciepe.html")
+    if 'id' in request.session:
+        context = {
+        "categories" :['Breakfast','Lunch','Dinner','Juice','Salad'],
+        }
+        return render(request, "add_reciepe.html", context)
+    return redirect("/")
 
 def reciepe_details(request):
     return render(request, "reciepe_details.html")
@@ -102,23 +113,25 @@ def categories(request):
     context = {
         "categories" : Category.objects.all()
     }
-    return render(request, "categories.html", context)
+    return render(request, "category_reciepes.html", context)
 
 
 
-def add_recipe(name, preparation_time, cooking_time, serving_people, reciepe_img, user, categories, instructions, ingredients, reviews, request):
-    recipe = Recipe.objects.create(name=name, preparation_time=preparation_time, cooking_time=cooking_time, serving_people=serving_people, reciepe_img=reciepe_img, user = User.objects.get(id=request.session['id']))
-    recipe.categories.set(categories)
-    recipe.save()
+def add_recipe(request):
+    recipe_creator=User.objects.get(id=request.session['id'])
+    information=[request.POST['name'],request.POST['category'],request.POST['description'], request.FILES['image'], request.POST['preparation_time'], request.POST['cooking_time'], request.POST['serving_people']]
+    recipe = Recipe.objects.create(name=information[0],category=information[1],description=information[2],recipe_img=information[3], preparation_time=information[4], cooking_time=information[5], serving_people=information[6], user = recipe_creator )
+    
 
-    for instruction in instructions:
-        Instruction.objects.create(recipe=recipe, step_text=instruction['text'], step_number=instruction['number'])
+    for i in range(int(request.POST['number_of_ingredients'])):
+        ingredient_name='ingredient_name_'+ str(i)
+        ingredient_quantity='ingredient_quantity_'+ str(i)
+        ingredient=Ingredient.objects.create(name=request.POST[ingredient_name], quantity=request.POST[ingredient_quantity])
+        recipe.ingredients.add(ingredient)
 
+    for i in range(int(request.POST['number_of_instructions'])):
+        instruction_specification='instruction_specification_'+ str(i)
+        Instruction.objects.create(specification=request.POST[instruction_specification], recipe=recipe)
+        
 
-    for ingredient in ingredients:
-        Ingredient.objects.create(recipe=recipe, name=ingredient['name'], quantity=ingredient['quantity'])
-
-
-
-    #for review in reviews:
-        #Review.objects.create(recipe=recipe, user=review['user'], rating=review['rating'], review=review['review'])
+    return redirect('/my_reciepes')
