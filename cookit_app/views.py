@@ -135,3 +135,49 @@ def add_recipe(request):
         
 
     return redirect('/my_reciepes')
+
+def category_view(request, category_name):
+    category = Category.objects.get(name=category_name)
+    category_reciepes = Reciepe.objects.filter(category=category)
+
+    context = {
+        'category_reciepes': category_reciepes,
+        'category_name': category_name,
+        'categories' : Category.objects.all()
+
+        }
+    
+    return render(request, 'category_reciepes.html', context)
+
+def write_review(request, reciepe_id):
+    # Get the reciepe and user
+    user_id = request.session.get('id')
+    if user_id:
+        user = User.objects.get(id=user_id)
+    else:
+        return redirect('/login_page')
+    reciepe = Reciepe.objects.get(id=reciepe_id)
+    user = User.objects.get(id=request.session['id'])
+    if request.method == 'POST':
+        # Get the rating and review from the request
+        rating = request.POST.get('rating')
+        review = request.POST.get('review')
+        reciepe.total_rating += int(rating)
+        reciepe.save()
+
+        # Create the review
+        Review.objects.create(customer=user, reciepe=reciepe, rating=rating, review=review)
+
+        return redirect('/reciepe_deatils/' + str(reciepe_id))
+
+def search(request):
+    query = request.GET.get('q')
+    if query:
+        reciepes = Reciepe.objects.filter(name__icontains=query)
+    else:
+        reciepes = []
+    context = {
+        'reciepes': reciepes,
+        'categories': Category.objects.all(),
+    }
+    return render(request, 'search_results.html', context)
